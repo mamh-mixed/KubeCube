@@ -547,8 +547,8 @@ func listHncNsByTenantsFunc(ctx context.Context, tenantList []string) func(cli m
 	}
 }
 
-func getVisibleTenants(cli mgrclient.Client, userName string, tenants []string) ([]string, error) {
-	visibleTenants, err := authorization.GetVisibleTenants(context.Background(), cli, userName)
+func getVisibleTenants(ctx context.Context, cli mgrclient.Client, userName string, tenants []string) ([]string, error) {
+	visibleTenants, err := authorization.GetVisibleTenants(ctx, cli, userName)
 	if err != nil {
 		return nil, err
 	}
@@ -566,7 +566,7 @@ func getVisibleTenants(cli mgrclient.Client, userName string, tenants []string) 
 	return queryTenantSet.UnsortedList(), nil
 }
 
-func listCubeResourceQuota(cli mgrclient.Client, tenants []string, clusters []string) ([]cubeResourceQuotaData, error) {
+func listCubeResourceQuota(ctx context.Context, cli mgrclient.Client, tenants []string, clusters []string) ([]cubeResourceQuotaData, error) {
 	ls := labels.NewSelector()
 	r1, err := labels.NewRequirement(constants.ClusterLabel, selection.In, clusters)
 	if err != nil {
@@ -580,7 +580,7 @@ func listCubeResourceQuota(cli mgrclient.Client, tenants []string, clusters []st
 	ls = ls.Add(*r2)
 
 	list := v1.CubeResourceQuotaList{}
-	err = cli.Cache().List(context.Background(), &list, &client.ListOptions{LabelSelector: ls})
+	err = cli.Cache().List(ctx, &list, &client.ListOptions{LabelSelector: ls})
 	if err != nil {
 		return nil, err
 	}
@@ -595,7 +595,7 @@ func listCubeResourceQuota(cli mgrclient.Client, tenants []string, clusters []st
 	// construct cluster cn name map
 	clusterMap := make(map[string]string, len(clusters))
 	clusterList := clusterv1.ClusterList{}
-	err = cli.Cache().List(context.Background(), &clusterList)
+	err = cli.Cache().List(ctx, &clusterList)
 	if err != nil {
 		return nil, err
 	}
